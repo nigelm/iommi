@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Type
 
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import (
     Context,
@@ -120,7 +121,7 @@ def edit_table__post_handler(table, request, **_):
     if 'post_save' in table.extra:
         table.extra.post_save(**table.iommi_evaluate_parameters())
 
-    return redirect('.')
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 class EditTable(Table):
@@ -140,7 +141,7 @@ class EditTable(Table):
             display_name=gettext('Save'),
             post_handler=edit_table__post_handler,
         )
-        actions__csrf = Action(children__csrf=Fragment(template=Template('{% csrf_token %}')), attrs__style__display='none')
+        actions__csrf = Action(tag='div', children__csrf=Fragment(template=Template('{% csrf_token %}')), attrs__style__display='none')
         actions_below = True
         edit_form = EMPTY
 
