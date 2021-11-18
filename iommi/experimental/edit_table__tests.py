@@ -2,7 +2,10 @@ import pytest
 from tri_declarative import Namespace
 from tri_struct import Struct
 
-from iommi import Field
+from iommi import (
+    Column,
+    Field,
+)
 from iommi.experimental.edit_table import (
     EditColumn,
     EditTable,
@@ -82,7 +85,6 @@ def test_formset_table_post():
     ]
     edit_table = EditTable(
         columns=dict(
-            # Should work but doesn't yet: editable_thing=EditColumn(edit=Field()),
             editable_thing=EditColumn(
                 edit=Namespace(call_target=Field),
             ),
@@ -99,3 +101,29 @@ def test_formset_table_post():
 
     assert rows[0].editable_thing == 'fisk'
     assert rows[1].editable_thing == 'fusk'
+
+
+def test_edit_table_definition():
+    class MyEditTable(EditTable):
+        foo = EditColumn(edit=None)
+        # bar = EditColumn(edit=Field())
+        baz = EditColumn(edit=dict(call_target=Field))
+        vanilla = Column()
+
+    my_edit_table = MyEditTable(
+        columns=dict(
+            bing=EditColumn(edit=None),
+            # bang=EditColumn(edit=Field()),
+            bong=EditColumn(edit=dict(call_target=Field)),
+        )
+    ).bind()
+
+    assert list(my_edit_table.columns.keys()) == [
+        'foo',
+        # 'bar',
+        'baz',
+        'vanilla',
+        'bing',
+        # 'bang',
+        'bong',
+    ]

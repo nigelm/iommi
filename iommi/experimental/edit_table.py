@@ -80,8 +80,6 @@ class EditCells(Cells):
 class EditColumn(Column):
     edit: Field = Refinable()
 
-    class Meta:
-        edit = EMPTY
 
 
 def edit_table__post_handler(table, request, **_):
@@ -153,7 +151,11 @@ class EditTable(Table):
         field_class = self.get_meta().form_class.get_meta().member_class
 
         for name, column in items(self.iommi_namespace.columns):
+            if not isinstance(column, EditColumn):
+                continue
             if getattr(column, 'include', None) is False:
+                continue
+            if getattr(column, 'edit', None) is None:
                 continue
             if getattr(column.edit, 'include', None) is False:
                 continue
